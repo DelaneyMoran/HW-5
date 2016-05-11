@@ -1,6 +1,6 @@
 ---
 title: "MATH 216 Homework 5"
-author: "WRITE YOUR NAME HERE"
+author: "Delaney Moran"
 output: html_document
 ---
 
@@ -9,46 +9,87 @@ output: html_document
 
 Please indicate
 
-* Who you collaborated with:
-* Roughly how much time you spent on this HW:
+* Who you collaborated with: no one
+* Roughly how much time you spent on this HW: 3 hrs
 * What gave you the most trouble:
 * Any comments you have: 
 
 
-
-
-
 ## Question 1:
 
-* Pick three books from [Project Gutenberg](https://www.gutenberg.org/) and make
-a "single-file" Shiny app based on file `App.R`
-    + showing the corresponding wordcloud for a given book
-    + that has "toggle" functionality to switch between the three books
-* Note: Project Gutenberg tends to have older books whose copyright has expired.
-* Install all necessary packages on your Middlebury Shiny server account
-following the instructions given in Lec16 Shiny.
-* Upload your app to the Middlebury Shiny server and replace the NHL link with
-the link for your app [here](https://www.nhl.com/), so that when you Knit the 
-document a working hyperlink shows.
 
-Hints:
 
-* Get your code completely working for a non-Shiny app first, then build your
-app slowly.
-* If you get stuck, please ask for help sooner rather than later. I don't want 
-people spinning their wheels on this HW this late in the semester.
-* Consider using `if` and `else` statements to switch out which text to show the
-wordcloud for. Note this isn't the only way to do this. Ex:
-
-```{r}
-text <- "blah2"
-if(text == "blah1"){
-  value <- 1
-} else if (text == "blah2"){
-  value <- 2
-} else if (text == "blah3"){
-  value <- 3
-}
-value
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(wordcloud))
+suppressPackageStartupMessages(library(SnowballC))
+suppressPackageStartupMessages(library(tm))
 ```
+
+
+Wordclouds: (Non-Shiny)
+```{r, echo=FALSE, fig.width=12, fig.height=6}
+#import text files
+bible <-readLines("bible.txt", encoding="UTF-8") %>%
+  as.character()
+
+anneogg <- readLines("Anne.txt", encoding="UTF-8") %>%
+  as.character()
+
+biobook <- readLines("biobook.txt", encoding="UTF-8") %>%
+  as.character()
+
+
+#clean it up
+more_stopwords<- c("said", "thy", "thee", "ye", "will", "thee", "can", "shall", "hath", "one", "now", "dont", "mrs", "im", "also", "thou", "will", "go", "going", "mr", "shalt", "much", "upon", "us", "even", "get", "say", "unto", "went", "saith", "therefore", "just", "hast", "ive", "didnt", "id", "isnt", "got", "o", "oh")
+
+anneogg_names <- c("marilla", "diana", "matthew", "anne", "lynde")
+
+bible <- bible %>% 
+  tolower() %>%
+  removeNumbers() %>%
+  removePunctuation() %>%
+  removeWords(c(stopwords("english"), more_stopwords)) %>%
+  stemDocument() %>%
+  stripWhitespace()
+
+anneogg <- anneogg %>% 
+  tolower() %>%
+  removeNumbers() %>%
+  removePunctuation() %>%
+  removeWords(c(stopwords("english"),more_stopwords, anneogg_names)) %>%
+  stemDocument() %>%
+  stripWhitespace()
+
+biobook <- biobook %>% 
+  tolower() %>%
+  removeNumbers() %>%
+  removePunctuation() %>%
+  removeWords(c(stopwords("english"), more_stopwords)) %>%
+  stemDocument() %>%
+  stripWhitespace()
+
+
+#make wordclouds!
+
+anneogg2 <- VectorSource(anneogg) %>% 
+  Corpus()
+anne_cloud <- wordcloud(anneogg, scale=c(4, 0.5), max.words=25, random.order=FALSE,
+          rot.per=0.2, use.r.layout=FALSE, colors=brewer.pal(5, "YlGn"))
+
+bible2 <- VectorSource(bible) %>% 
+  Corpus()
+bible_cloud <- wordcloud(bible, scale=c(5,0.5), max.words=25, random.order=FALSE,
+          rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(5, "RdPu"))
+
+biobook2 <- VectorSource(biobook) %>% 
+  Corpus()
+bio_cloud <- wordcloud(biobook, scale=c(5,0.5), max.words=25, random.order=FALSE,
+          rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(5, "BuGn"))
+
+
+
+```
+
 
